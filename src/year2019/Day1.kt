@@ -1,7 +1,7 @@
 package year2019
 
-import year2019.util.getContents
 import year2019.util.getLines
+import year2019.util.print
 
 fun main(args: Array<String>) {
     Day1.a()
@@ -10,16 +10,17 @@ fun main(args: Array<String>) {
 
 private object Day1 {
     fun a() {
-        println(getLines("day1a.txt")
+        getLines("day1a.txt")
                 .map { it.toInt() }
                 .map { it / 3 }
                 .map { Math.floor(it.toDouble()) }
                 .map { it - 2 }
-                .sum())
+                .sum()
+                .print()
 }
 
     fun b() {
-        println(getLines("day1a.txt")
+        getLines("day1a.txt")
                 .map { it.toInt() }
                 .map {
                     var tot = 0
@@ -31,7 +32,8 @@ private object Day1 {
                     }
                     tot
                 }
-                .sum())
+                .sum()
+                .print()
     }
 
 }
