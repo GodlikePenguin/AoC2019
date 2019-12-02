@@ -10,7 +10,7 @@ fun main(args: Array<String>) {
 
 private object Day1 {
     fun a() {
-        getLines("day1a.txt")
+        getLines("day1.txt")
                 .map { it.toInt() }
                 .map { it / 3 }
                 .map { Math.floor(it.toDouble()) }
@@ -20,7 +20,7 @@ private object Day1 {
 }
 
     fun b() {
-        getLines("day1a.txt")
+        getLines("day1.txt")
                 .map { it.toInt() }
                 .map {
                     var tot = 0
