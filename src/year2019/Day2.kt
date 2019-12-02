@@ -33,7 +33,10 @@ object Day2 {
                 val attempt = initialCodes.copyOf()
                 attempt[1] = noun
                 attempt[2] = verb
-                if (calculate(attempt) == 19690720) (100 * noun + verb).print()
+                if (calculate(attempt) == 19690720) {
+                    (100 * noun + verb).print()
+                    break
+                }
             }
         }
     }
