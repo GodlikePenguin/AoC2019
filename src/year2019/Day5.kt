@@ -17,14 +17,19 @@ object Day5 {
                 .map { it.toInt() }
                 .toIntArray()
 
-        calculate(codes)
+        calculate(codes, 1)
     }
 
     fun b() {
+        val codes = getContents("day5.txt")
+                .split(",")
+                .map { it.toInt() }
+                .toIntArray()
 
+        calculate(codes, 5)
     }
 
-    fun calculate(codes: IntArray) {
+    fun calculate(codes: IntArray, input: Int) {
         var instructionPointer = 0
         loop@ while(instructionPointer < codes.size) {
             val currentInstruction = codes[instructionPointer].toString().padStart(5, '0')
@@ -45,12 +50,26 @@ object Day5 {
                     instructionPointer += 4
                 }
                 "03" -> {
-                    codes[codes[instructionPointer+1]] = 1 //input is always 1
+                    codes[codes[instructionPointer+1]] = input
                     instructionPointer += 2
                 }
                 "04" -> {
                     first.print()
                     instructionPointer += 2
+                }
+                "05" -> {
+                    instructionPointer = if (first != 0) second else instructionPointer + 3
+                }
+                "06" -> {
+                    instructionPointer = if (first == 0) second else instructionPointer + 3
+                }
+                "07" -> {
+                    codes[codes[instructionPointer+3]] = if (first < second) 1 else 0
+                    instructionPointer += 4
+                }
+                "08" -> {
+                    codes[codes[instructionPointer+3]] = if (first == second) 1 else 0
+                    instructionPointer += 4
                 }
                 "99" -> {
                     break@loop
