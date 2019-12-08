@@ -12,8 +12,11 @@ fun main(args: Array<String>) {
 
 object Day8 {
     fun a(width: Int, height: Int) {
-        val leastZeroLayer = getContents("day8.txt").chunked(width * height).minBy { layer -> layer.count { it == '0' } }!!
-        (leastZeroLayer.count { it == '1' } * leastZeroLayer.count { it == '2' }).print()
+        getContents("day8.txt")
+                .chunked(width * height)
+                .minBy { layer -> layer.count { it == '0' } }!!
+                .let { layer -> layer.count { it == '1' } *  layer.count { it == '2' } }
+                .print()
     }
 
     fun b(width: Int, height: Int) {
