@@ -17,12 +17,13 @@ object Day11 {
         val paintMap: MutableMap<Point, Long> = HashMap()
         val inputs = ArrayDeque<Long>()
         val outputs = ArrayDeque<Long>()
-        var pointer = 0
+        val state = StateHolder()
+        var done = false
         var robot = FaceablePoint()
-        while (pointer != -1) {
-            pointer = calculate(intCodes, inputs, outputs, pointer)
+        while (!done) {
+            done = calculate(intCodes, inputs, outputs, state)
             while(outputs.isNotEmpty()) {
-                paintMap[robot.toPoint()] = outputs.remove()
+                paintMap[robot] = outputs.remove()
                 when (outputs.remove()) {
                     0L -> robot = robot.turnLeft()
                     1L -> robot = robot.turnRight()
@@ -40,25 +41,26 @@ object Day11 {
         paintMap[Point(0, 0)] = 1L
         val inputs = ArrayDeque<Long>()
         val outputs = ArrayDeque<Long>()
-        var pointer = 0
+        val state = StateHolder()
+        var done = false
         var robot = FaceablePoint()
-        while (pointer != -1) {
-            pointer = calculate(intCodes, inputs, outputs, pointer)
+        while (!done) {
+            done = calculate(intCodes, inputs, outputs, state)
             while(outputs.isNotEmpty()) {
-                paintMap[robot.toPoint()] = outputs.remove()
+                paintMap[robot] = outputs.remove()
                 when (outputs.remove()) {
                     0L -> robot = robot.turnLeft()
                     1L -> robot = robot.turnRight()
                 }
                 robot = robot.step()
             }
-            inputs.add(paintMap.getOrDefault(robot.toPoint(), 0))
+            inputs.add(paintMap.getOrDefault(robot, 0))
         }
-        for (y in 0..6) {
-            for (x in 0..50) {
+        for (y in paintMap.keys.minBy { it.y }!!.y..paintMap.keys.maxBy { it.y }!!.y) {
+            for (x in paintMap.keys.minBy { it.x }!!.x..paintMap.keys.maxBy { it.x }!!.x) {
                 val charToPrint = when(paintMap.getOrDefault(Point(x, y), 0)) {
                     0L -> ' '
-                    1L -> '█'
+                    1L -> '#'
                     else -> throw RuntimeException("Invalid paint char")
                 }
                 print(charToPrint)
@@ -67,55 +69,53 @@ object Day11 {
         }
     }
 
-    fun calculate(codes: ZeroDefaultList, inputs: Queue<Long>, outputs: Queue<Long>, startPointer: Int): Int {
-        var instructionPointer = startPointer
-        var relativeBase = 0L
-        loop@ while(instructionPointer < codes.size) {
-            val currentInstruction = codes[instructionPointer].toString().padStart(5, '0')
-            val first = if (currentInstruction[2] == '1') codes[instructionPointer+1] else if (currentInstruction[2] == '2') codes[relativeBase + codes[instructionPointer+1]] else codes[codes[instructionPointer+1]]
-            val second = if (currentInstruction[1] == '1') codes[instructionPointer+2] else if (currentInstruction[1] == '2') codes[relativeBase + codes[instructionPointer+2]] else codes[codes[instructionPointer+2]]
-            val calculatedThirdOffset = if (currentInstruction[0] == '0') 0 else if (currentInstruction[0] == '2') relativeBase else throw RuntimeException("Output index cannot be immediate")
+    fun calculate(codes: ZeroDefaultList, inputs: Queue<Long>, outputs: Queue<Long>, state: StateHolder): Boolean {
+        loop@ while(state.instructionPointer < codes.size) {
+            val currentInstruction = codes[state.instructionPointer].toString().padStart(5, '0')
+            val first = if (currentInstruction[2] == '1') codes[state.instructionPointer+1] else if (currentInstruction[2] == '2') codes[state.relativeBase + codes[state.instructionPointer+1]] else codes[codes[state.instructionPointer+1]]
+            val second = if (currentInstruction[1] == '1') codes[state.instructionPointer+2] else if (currentInstruction[1] == '2') codes[state.relativeBase + codes[state.instructionPointer+2]] else codes[codes[state.instructionPointer+2]]
+            val calculatedThirdOffset = if (currentInstruction[0] == '0') 0 else if (currentInstruction[0] == '2') state.relativeBase else throw RuntimeException("Output index cannot be immediate")
             when (currentInstruction.substring(3)) { //get last two digits
                 "01" -> {
-                    codes[codes[instructionPointer+3] + calculatedThirdOffset] = first + second
-                    instructionPointer += 4
+                    codes[codes[state.instructionPointer+3] + calculatedThirdOffset] = first + second
+                    state.instructionPointer += 4
                 }
                 "02" -> {
-                    codes[codes[instructionPointer+3] + calculatedThirdOffset] = first * second
-                    instructionPointer += 4
+                    codes[codes[state.instructionPointer+3] + calculatedThirdOffset] = first * second
+                    state.instructionPointer += 4
                 }
                 "03" -> {
                     try {
-                        codes[codes[instructionPointer + 1] +  if (currentInstruction[2] == '0') 0 else if (currentInstruction[2] == '2') relativeBase else throw RuntimeException("Output index cannot be immediate")] = inputs.remove()
-                        instructionPointer += 2
+                        codes[codes[state.instructionPointer + 1] +  if (currentInstruction[2] == '0') 0 else if (currentInstruction[2] == '2') state.relativeBase else throw RuntimeException("Output index cannot be immediate")] = inputs.remove()
+                        state.instructionPointer += 2
                     } catch(e: NoSuchElementException) {
-                        return instructionPointer
+                        return false
                     }
                 }
                 "04" -> {
                     outputs.add(first)
-                    instructionPointer += 2
+                    state.instructionPointer += 2
                 }
                 "05" -> {
-                    instructionPointer = if (first != 0L) second.toInt() else instructionPointer + 3
+                    state.instructionPointer = if (first != 0L) second.toInt() else state.instructionPointer + 3
                 }
                 "06" -> {
-                    instructionPointer = if (first == 0L) second.toInt() else instructionPointer + 3
+                    state.instructionPointer = if (first == 0L) second.toInt() else state.instructionPointer + 3
                 }
                 "07" -> {
-                    codes[codes[instructionPointer+3] + calculatedThirdOffset] = if (first < second) 1L else 0L
-                    instructionPointer += 4
+                    codes[codes[state.instructionPointer+3] + calculatedThirdOffset] = if (first < second) 1L else 0L
+                    state.instructionPointer += 4
                 }
                 "08" -> {
-                    codes[codes[instructionPointer+3] + calculatedThirdOffset] = if (first == second) 1L else 0L
-                    instructionPointer += 4
+                    codes[codes[state.instructionPointer+3] + calculatedThirdOffset] = if (first == second) 1L else 0L
+                    state.instructionPointer += 4
                 }
                 "09" -> {
-                    relativeBase += first
-                    instructionPointer += 2
+                    state.relativeBase += first
+                    state.instructionPointer += 2
                 }
                 "99" -> {
-                    return -1
+                    return true
                 }
                 else -> {
                     throw RuntimeException("We fucked up")
@@ -125,3 +125,5 @@ object Day11 {
         throw RuntimeException("We shouldn't be here")
     }
 }
+
+data class StateHolder(var instructionPointer: Int = 0, var relativeBase: Long = 0L)
