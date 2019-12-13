@@ -65,3 +65,28 @@ open class FaceablePoint(x: Int = 0, y: Int = 0, val facing: Int = 1) : Point(x,
         return "FaceablePoint(x=${this.x}, y=${this.y}, facing=${this.facing})"
     }
 }
+
+data class Vector(val x: Int, val y: Int, val z: Int) {
+    operator fun plus(other: Vector) = Vector(x + other.x, y + other.y, z + other.z)
+    operator fun minus(other: Vector) = Vector(x - other.x, y - other.y, z - other.z)
+
+    fun abs() = abs(x) + abs(y) + abs(z)
+
+    override fun toString(): String {
+        return "Vector(x=${x}, y=${y}, z=${z})"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Vector) {
+            return (x == other.x && y == other.y && z == other.z)
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        var result = x
+        result = 31 * result + y
+        result = 31 * result + z
+        return result
+    }
+}
