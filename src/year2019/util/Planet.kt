@@ -7,6 +7,18 @@ data class Planet(var position: Vector, var velocity: Vector) {
         position = position + velocity
     }
 
+    fun hasSameX(other: Planet): Boolean {
+        return other.position.x == this.position.x && other.velocity.x == this.velocity.x
+    }
+
+    fun hasSameY(other: Planet): Boolean {
+        return other.position.y == this.position.y && other.velocity.y == this.velocity.y
+    }
+
+    fun hasSameZ(other: Planet): Boolean {
+        return other.position.z == this.position.z && other.velocity.z == this.velocity.z
+    }
+
     override fun toString(): String {
         return "$position$velocity"
     }

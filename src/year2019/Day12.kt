@@ -1,9 +1,7 @@
 package year2019
 
-import year2019.util.Planet
-import year2019.util.Vector
-import year2019.util.getLines
-import year2019.util.print
+import year2019.util.*
+import kotlin.math.min
 
 fun main(args: Array<String>) {
     Day12.a()
@@ -38,6 +36,9 @@ object Day12 {
         val originalPlanets = planets.map { it.copy() }
 
         var iterations = 0
+        var xLoop = Int.MAX_VALUE
+        var yLoop = Int.MAX_VALUE
+        var zLoop = Int.MAX_VALUE
         while (true) {
             iterations++
             for (planet in planets) {
@@ -48,15 +49,28 @@ object Day12 {
                     planet.velocity = planet.velocity + Vector(xdiff, ydiff, zdiff)
                 }
             }
-            var backToInitialStateCount = 0
+            var backToInitialXCount = 0
+            var backToInitialYCount = 0
+            var backToInitialZCount = 0
             for (planet in planets.withIndex()) {
                 planet.value.update()
-                if (planet.value == originalPlanets[planet.index]) {
-                    backToInitialStateCount++
+                if (planet.value.hasSameX(originalPlanets[planet.index])) {
+                    backToInitialXCount++
+                }
+                if (planet.value.hasSameY(originalPlanets[planet.index])) {
+                    backToInitialYCount++
+                }
+                if (planet.value.hasSameZ(originalPlanets[planet.index])) {
+                    backToInitialZCount++
                 }
             }
-            if (backToInitialStateCount == 4) break
+            if (backToInitialXCount == 4) xLoop = min(xLoop, iterations)
+            if (backToInitialYCount == 4) yLoop = min(yLoop, iterations)
+            if (backToInitialZCount == 4) zLoop = min(zLoop, iterations)
+            if (xLoop < Int.MAX_VALUE && yLoop < Int.MAX_VALUE && zLoop < Int.MAX_VALUE) {
+                break
+            }
         }
-        iterations.print()
+        arrayLCM(xLoop, yLoop, zLoop).print()
     }
 }
